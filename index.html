@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#112f40">
+  <meta name="description" content="Independent practice app for the 74 official EIC Pathfinder Challenges 2026 training quiz questions in Parts A–E.">
+  <title>EIC Pathfinder Challenges 2026 · Evaluator Trainer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app-shell">
+  <header class="topbar">
+    <button class="wordmark" id="brand-home" type="button" aria-label="Go to overview"><span class="logo-box">E<span>·</span></span><span class="brand-name"><strong>PATHFINDER <i>LAB</i></strong><small>Evaluator self-training</small></span></button>
+    <div class="topbar-right"><span class="edition"><span class="edition-dot"></span>CHALLENGES 2026</span><a href="https://eic.eismea.eu/community/eic-pathfinder-evaluator-training" target="_blank" rel="noopener noreferrer">EIC training portal <span aria-hidden="true">↗</span></a></div>
+  </header>
+  <div class="layout">
+    <aside class="sidebar">
+      <p class="menu-label">WORKSPACE</p>
+      <nav class="primary-nav" aria-label="App navigation">
+        <button type="button" class="nav-item active" data-page="home"><span>▦</span> Overview</button>
+        <button type="button" class="nav-item" data-page="practice"><span>◎</span> Practice & exam</button>
+        <button type="button" class="nav-item" data-page="bank"><span>▤</span> Question bank</button>
+        <button type="button" class="nav-item" data-page="progress"><span>▥</span> My progress</button>
+        <button type="button" class="nav-item" data-page="settings"><span>⇅</span> Backup & sources</button>
+      </nav>
+      <div class="sidebar-divider"></div>
+      <div class="aside-heading"><p class="menu-label">TRAINING PARTS</p><span>74 TOTAL</span></div>
+      <nav class="part-nav" aria-label="Practice by part">
+        <button type="button" data-start-part="A"><b>A</b><span><strong>General overview</strong><small><span data-part-done="A">0</span> / 13 practiced</small></span></button>
+        <button type="button" data-start-part="B"><b>B</b><span><strong>IER and CR</strong><small><span data-part-done="B">0</span> / 20 practiced</small></span></button>
+        <button type="button" data-start-part="C"><b>C</b><span><strong>Budget & questions</strong><small><span data-part-done="C">0</span> / 11 practiced</small></span></button>
+        <button type="button" data-start-part="D"><b>D</b><span><strong>Vice Chairs Rapporteurs</strong><small><span data-part-done="D">0</span> / 16 practiced</small></span></button>
+        <button type="button" data-start-part="E"><b>E</b><span><strong>VCPs & portfolio</strong><small><span data-part-done="E">0</span> / 14 practiced</small></span></button>
+      </nav>
+      <div class="sidebar-foot"><b>Based on EIC training PDFs</b><span>Questions and correct answers are reproduced from the supplied 2026 training documents. This is an independent study tool.</span></div>
+    </aside>
+
+    <main class="workspace">
+      <section class="page" id="page-home">
+        <p class="eyebrow">AUTHENTIC EIC TRAINING QUESTIONS / 2026 EDITION</p>
+        <h1>Study the material.<br><em>Master the evaluation.</em></h1>
+        <p class="lead">Practice all 74 questions from the EIC Pathfinder Challenges evaluator training, organised in the original five parts and graded against the consolidated official answer key.</p>
+        <div class="quick-actions"><button class="btn primary" type="button" id="quick-practice">Start practicing <span>→</span></button><button class="btn secondary" type="button" id="quick-exam">Take a mock exam</button></div>
+        <div class="metric-grid" id="home-metrics"></div>
+        <div class="section-intro"><div><p class="eyebrow">THE CURRICULUM</p><h2>Choose your training part</h2></div><span class="tiny-tag">5 PARTS · 74 QUESTIONS</span></div>
+        <div class="part-grid" id="part-cards"></div>
+        <div class="info-note"><b>About Part E:</b> the fifth quiz PDF is titled <i>“VCPs – Individual Evaluation and Portfolio Building”</i>; the accompanying lecture deck calls this material <i>Part E</i>. Question order, option labels, and answer keys are preserved. No synthetic questions are included.</div>
+      </section>
+
+      <section class="page hidden" id="page-practice">
+        <p class="eyebrow">PRACTICE STUDIO</p><h1 class="inner-title">Practice <em>& assessment</em></h1>
+        <div id="session-setup" class="panel">
+          <div class="panel-intro"><h2>Configure your session</h2><p>Questions follow their source PDFs. Question order can be shuffled, but answer letters stay fixed.</p></div>
+          <div class="input-grid"><label>Quiz section<select id="filter-part"><option value="all">All parts (A–E) · 74 questions</option><option value="A">Part A · General Overview</option><option value="B">Part B · Guidance for IER and CR</option><option value="C">Part C · Additional Questions and Lump Sum Budget</option><option value="D">Part D · Vice Chairs Rapporteurs</option><option value="E">Part E · VCPs / Portfolio Building</option></select></label><label>Session size<select id="session-count"><option value="all">All matching questions</option><option value="5">5 questions</option><option value="10" selected>10 questions</option><option value="20">20 questions</option></select></label></div>
+          <div class="check-row"><label><input type="checkbox" id="focus-missed"> Only questions last answered incorrectly</label><label><input type="checkbox" id="focus-bookmarks"> Only bookmarked questions</label><label><input type="checkbox" id="shuffle-questions" checked> Shuffle question order</label></div>
+          <div class="mode-grid"><button type="button" id="start-practice" class="mode-card"><span class="mode-icon">◎</span><strong>Learn as you go</strong><small>See the official answer and feedback after each question.</small><span>Start practice <span aria-hidden="true">→</span></span></button><button type="button" id="start-exam" class="mode-card"><span class="mode-icon">▣</span><strong>Mock exam</strong><small>Answer without feedback. Get a score and full answer review at the end.</small><span>Start exam <span aria-hidden="true">→</span></span></button></div>
+          <p id="setup-message" class="message" role="status"></p>
+        </div>
+        <div id="session-playing" class="hidden">
+          <div class="session-header"><div><span id="session-badge" class="pill">PRACTICE</span><span id="session-scope" class="muted"></span></div><button type="button" id="abandon-session" class="link-button">Exit session ×</button></div>
+          <div class="progressbar"><div id="session-progress-bar"></div></div>
+          <div class="session-counter"><span id="question-position">QUESTION 1 / 10</span><span id="answered-count">0 ANSWERED</span></div>
+          <article class="question-panel">
+            <div class="question-topline"><span id="question-label" class="eyebrow">PART A · QUESTION 1</span><span id="question-kind" class="question-kind">CHOOSE ONE</span></div>
+            <h2 id="question-text"></h2><div id="answer-list" class="answer-list" role="group" aria-label="Possible answers"></div>
+            <div id="feedback" class="feedback hidden" role="status"></div>
+            <div class="question-footer"><button type="button" id="bookmark-question" class="link-button">☆ Bookmark</button><div class="question-actions"><button type="button" class="btn secondary" id="previous-question">← Previous</button><button type="button" class="btn primary" id="check-question">Check answer →</button><button type="button" class="btn primary hidden" id="next-question">Next question →</button></div></div>
+          </article>
+        </div>
+        <div id="session-results" class="hidden panel">
+          <p class="eyebrow">SESSION COMPLETED</p><h2 class="results-title">Review your <em>answers.</em></h2><p id="results-intro" class="muted"></p><div id="result-metrics" class="metric-grid"></div>
+          <h3>Full answer review</h3><div id="results-review"></div>
+          <div class="quick-actions"><button id="new-session" type="button" class="btn primary">New session →</button><button id="go-to-progress" type="button" class="btn secondary">View my progress</button></div>
+        </div>
+      </section>
+
+      <section class="page hidden" id="page-bank">
+        <p class="eyebrow">ORIGINAL SOURCE QUESTIONS</p><h1 class="inner-title">Question <em>bank</em></h1><p class="lead compact">Browse all 74 original questions. Reveal the answer key without recording an attempt.</p>
+        <div class="filters"><label class="sr-only" for="search-questions">Search questions</label><input id="search-questions" type="search" placeholder="Search question text or answer options…"><label class="sr-only" for="bank-part">Select section</label><select id="bank-part"><option value="all">All sections (A–E)</option><option value="A">Part A</option><option value="B">Part B</option><option value="C">Part C</option><option value="D">Part D</option><option value="E">Part E / VCPs</option></select></div>
+        <p id="bank-summary" class="muted bank-summary"></p><div id="bank-results" class="bank-results"></div>
+      </section>
+
+      <section class="page hidden" id="page-progress">
+        <p class="eyebrow">PERSONAL LEARNING ANALYTICS</p><h1 class="inner-title">Your <em>progress</em></h1><p class="lead compact">Progress stays on this device unless you export it. Accuracy is calculated over all submitted attempts.</p>
+        <div class="metric-grid" id="progress-metrics"></div><div class="panel"><h2>Coverage by part</h2><div id="part-progress-bars"></div></div>
+        <div class="panel"><div class="panel-heading"><h2>Questions to revisit</h2><button id="retry-missed" type="button" class="btn small primary">Practice missed →</button></div><p class="muted">Last submitted answer was incorrect. Correctly answering a question removes it from this list.</p><div id="missed-items"></div></div>
+        <div class="panel"><h2>Bookmarked questions</h2><div id="bookmarked-items"></div></div>
+      </section>
+
+      <section class="page hidden" id="page-settings">
+        <p class="eyebrow">SOURCE TRANSPARENCY & PORTABLE DATA</p><h1 class="inner-title">Backup <em>& sources</em></h1>
+        <div class="panel"><h2>Your learning data</h2><p class="muted">Export answers, bookmarks and completed-session statistics to JSON, or restore a previous backup.</p><div class="button-row"><button id="export-progress" class="btn primary" type="button">Download progress JSON</button><label class="btn secondary file-label" for="import-progress">Restore progress JSON</label><input type="file" id="import-progress" accept=".json,application/json" hidden><button id="export-bank" type="button" class="btn secondary">Download question bank JSON</button></div><p class="message" id="backup-message" role="status"></p><hr><button id="reset-progress" type="button" class="link-button danger">Reset all local progress and bookmarks</button></div>
+        <div class="panel"><h2>Official source documents</h2><p class="muted">Source materials supplied for this training app. The original PDFs are included in the downloadable project archive, with the slide deck divided into Parts A–E.</p><div id="sources-list"></div></div>
+        <div class="info-note"><b>Source fidelity:</b> 74 questions across five PDFs, with answers from <i>EIC_Pathfinder_Consolidated_Answers.pdf</i>. The source PDFs contain no separate per-question explanations; this app displays the official correct choices rather than inventing rationales. All source material is for the 2026 Challenges call, not the 2027 Pathfinder Open procedure.</div>
+      </section>
+    </main>
+  </div>
+  <footer class="footer">Independent learning tool · EIC Pathfinder Challenges 2026 · Not an official European Commission application · Progress is local to your browser</footer>
+</div>
+<script src="questions.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
