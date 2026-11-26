@@ -21,6 +21,16 @@ EXPECTED={
  'D':['D','A','B','A','B','A','B','D','A','C','E','B','B','C','C','D'],
  'E':['E','B','E','D','A','B','D','B','E','A','E','C','B','E'],
 }
+# Physical PDF pages, since printed slide numbers restart in each training part.
+SLIDE_PAGES={
+ 'A': [[9,18],[14,15],[20],[26],[27,28],[31],[29],[30],[33],[53],[49],[51],[54]],
+ 'B': [[65],[34,68,69],[41],[42],[79,81],[78,86],[81,82],[68,70],[70],[54,70],
+       [71],[71,72],[11,71],[73],[74],[75,76],[83],[83,85],[92,93],[96,98]],
+ 'C': [[114],[116,117],[118],[118],[119,120],[136,139],[136],[140],[140,141],[138],[136]],
+ 'D': [[156,157],[157,171],[170,174],[118],[119,178],[136,139],[139,140],[140,141],
+       [136],[158,159],[159,162,165],[171,177],[79,81],[81,160],[173,180],[171]],
+ 'E': [[9,18],[14,15],[20],[26],[27,28],[31],[29],[30],[33],[208],[205,206],[206],[208],[209]],
+}
 QUESTION_RE=re.compile(r'^\s*(\d{1,2})\.\s+(.+?)\s*$')
 OPT_RE=re.compile(r'^\s+([A-E])\.\s+(.+?)\s*$')
 ANS_RE=re.compile(r'^\s*(\d{1,2})\.\s+([A-E])\.\s+(.+?)\s*$')
@@ -78,7 +88,7 @@ def main():
     for pdf in ['EIC_Pathfinder_Part_A_Questions.pdf','EIC_Pathfinder_Part_B_Questions.pdf','EIC_Pathfinder_Part_C_Questions.pdf','EIC_Pathfinder_Part_D_Questions.pdf','EIC_Pathfinder_VCPs_Questions.pdf','EIC_Pathfinder_Consolidated_Answers.pdf']:
         output=SRC/(pathlib.Path(pdf).stem+'.txt')
         if not output.exists():
-            subprocess.run(['pdftotext','-layout',str(PDF_DIR/pdf),str(output)],check=True)
+            subprocess.run(['pdftotext','-enc','UTF-8','-layout',str(PDF_DIR/pdf),str(output)],check=True)
     answers=parse_answer_sheet((SRC/'EIC_Pathfinder_Consolidated_Answers.txt').read_text())
     bank=[]
     for part,(filename,title,expected_count) in FILES.items():
@@ -97,7 +107,7 @@ def main():
                     import difflib
                     similarity=difflib.SequenceMatcher(None, actual, expected).ratio()
                     assert similarity>0.93, (part,i,k,round(similarity,3),actual,expected)
-            q.update(id=f'{part}-{i:02}',part=part,title=title,answers=a['answers'],answerPage=a['page'],answerText=[norm(x) for x in a['text']])
+            q.update(id=f'{part}-{i:02}',part=part,title=title,answers=a['answers'],answerPage=a['page'],answerText=[norm(x) for x in a['text']],slidePages=SLIDE_PAGES[part][i-1])
             bank.append(q)
     assert len(bank)==74
     print('By section:',[(p,sum(q['part']==p for q in bank)) for p in FILES]);print('Multi-select:',[(q['id'],q['answers']) for q in bank if len(q['answers'])>1]);print('Sample:')

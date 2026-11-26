@@ -31,6 +31,17 @@
   const partMeta=p=>PARTS.find(x=>x.id===p);
   const sourceHref=(filename,page)=>'materials/'+encodeURIComponent(filename)+(page?'#page='+page:'');
   const sourceLabel=q=>`Part ${q.part}, Q${q.number} · Question PDF p.${q.sourcePage} · Answer key p.${q.answerPage}`;
+  function addSlideLinks(element,q){
+    const info=make('div','feedback-source');
+    info.append(make('span','','Relevant slides (PDF pages): '));
+    q.slidePages.forEach((page,index)=>{
+      if(index)info.append(document.createTextNode(' · '));
+      const link=make('a','',`p.${page} ↗`);link.href=sourceHref(SLIDES_FILE,page);link.target='_blank';link.rel='noopener noreferrer';
+      link.setAttribute('aria-label',`Open relevant lecture slides for ${q.id}, PDF page ${page} (new tab)`);info.append(link);
+    });
+    if(STANDALONE)info.append(make('span','',' (Requires the materials folder beside this HTML file.)'));
+    element.append(info);
+  }
   function addSourceLinks(element,q){
     const info=make('div','feedback-source');
     info.append(make('span','',sourceLabel(q)));
@@ -39,10 +50,9 @@
       const pdf=make('a','','Question PDF ↗');pdf.href=sourceHref(partMeta(q.part).file,q.sourcePage);pdf.target='_blank';pdf.rel='noopener noreferrer';info.append(pdf);
       info.append(document.createTextNode(' · '));
       const key=make('a','','Official answers ↗');key.href=sourceHref(ANSWERS_FILE,q.answerPage);key.target='_blank';key.rel='noopener noreferrer';info.append(key);
-      info.append(document.createTextNode(' · '));
-      const lecture=make('a','','Lecture slides ↗');lecture.href=sourceHref(SLIDES_FILE,partMeta(q.part).startSlide);lecture.target='_blank';lecture.rel='noopener noreferrer';info.append(lecture);
     }
     element.append(info);
+    addSlideLinks(element,q);
   }
   function go(page){view=page;document.querySelectorAll('.page').forEach(x=>x.classList.toggle('hidden',x.id!=='page-'+page));document.querySelectorAll('[data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page===page));
     if(page==='home')renderHome();if(page==='bank')renderBank();if(page==='progress')renderProgress();if(page==='settings')renderSettings();if(page==='practice')renderPractice();
@@ -83,6 +93,7 @@
     $('question-label').textContent=`PART ${q.part} · QUESTION ${q.number} · ${partMeta(q.part).title.toUpperCase()}`;
     $('question-kind').textContent=q.answers.length>1?'SELECT ALL THAT APPLY':'SELECT ONE';
     $('question-text').textContent=q.question;
+    addSlideLinks(clear($('question-slides')),q);
     $('bookmark-question').textContent=(progress.bookmarks.includes(q.id)?'★ Bookmarked':'☆ Bookmark question');
     const answers=clear($('answer-list'));
     for(const [letter,text] of Object.entries(q.options)){
@@ -145,7 +156,7 @@
     for(const q of xs){const card=make('article','bank-card');card.append(make('div','bank-meta',`PART ${q.part} · QUESTION ${q.number} ${q.answers.length>1?'· MULTIPLE ANSWERS':''}`),make('h3','',q.question));
       const det=make('details');det.append(make('summary','','Show answer key and options'));
       for(const [k,v] of Object.entries(q.options))det.append(make('p','bank-option'+(q.answers.includes(k)?' key':''),k+'. '+v));
-      det.append(make('p','bank-option key','Correct: '+q.answers.join(' + ')));const source=make('div','bank-source');addSourceLinks(source,q);det.append(source);card.append(det);root.append(card);
+      det.append(make('p','bank-option key','Correct: '+q.answers.join(' + ')));const source=make('div','bank-source');addSourceLinks(source,q);det.append(source);card.append(det);addSlideLinks(card,q);root.append(card);
     }
   }
   function renderProgress(){renderSidebar();const a=allAttempts();clear($('progress-metrics')).append(metric(a.total,'Answers submitted'),metric(a.accuracy===null?'—':a.accuracy+'%','Lifetime accuracy'),metric(progress.sessions||0,'Completed sessions'),metric(misses().length,'To revisit'));

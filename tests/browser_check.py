@@ -1,10 +1,12 @@
 """Browser smoke tests for the source-grounded 2026 trainer."""
 from pathlib import Path
+from shutil import which
+import os
 from playwright.sync_api import sync_playwright
 ROOT=Path(__file__).resolve().parents[1]
 try:
  with sync_playwright() as p:
-  browser=p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
+  browser=p.chromium.launch(executable_path=os.environ.get('CHROMIUM_EXECUTABLE') or which('chromium'),headless=True,args=['--no-sandbox'])
   page=browser.new_page(viewport={'width':1330,'height':910},device_scale_factor=1)
   errors=[]
   page.on('pageerror',lambda e: errors.append(str(e)))
@@ -16,6 +18,7 @@ try:
   page.screenshot(path=str(ROOT/'tests'/'overview.png'),full_page=True)
   page.locator('[data-page="bank"]').click()
   assert page.locator('.bank-card').count()==74
+  assert page.locator('.bank-card').first.locator(':scope > .feedback-source a').first.get_attribute('href').endswith('#page=9')
   page.locator('#bank-part').select_option('B')
   assert page.locator('.bank-card').count()==20
   page.locator('#bank-part').select_option('all')
@@ -30,6 +33,9 @@ try:
   page.locator('#start-practice').click()
   assert 'PART A · QUESTION 1' in page.locator('#question-label').inner_text()
   assert page.locator('.answer-option').count()==5
+  slide=page.locator('#question-slides a').first
+  assert slide.is_visible() and slide.get_attribute('href').endswith('#page=9')
+  assert slide.get_attribute('target')=='_blank'
   page.locator('.answer-option').nth(4).click()
   assert 'All of the above' in page.locator('.answer-option').nth(4).inner_text()
   page.locator('#check-question').click()
@@ -40,6 +46,11 @@ try:
   assert 'Bookmarked' in page.locator('#bookmark-question').inner_text()
   page.locator('#next-question').click()
   assert 'PART A · QUESTION 2' in page.locator('#question-label').inner_text()
+  assert page.locator('#question-slides a').first.get_attribute('href').endswith('#page=14')
+  page.locator('.answer-option').first.click()
+  page.locator('#check-question').click()
+  assert 'Incorrect answer' in page.locator('#feedback').inner_text()
+  assert page.locator('#feedback a').filter(has_text='p.14').get_attribute('href').endswith('#page=14')
   page.once('dialog',lambda dialog:dialog.accept())
   page.locator('#abandon-session').click()
   assert page.locator('#session-setup').is_visible()
@@ -68,6 +79,7 @@ try:
    page.locator('#check-question').click()
   assert page.locator('#session-results').is_visible()
   assert page.locator('#results-review .result-row').count()==20
+  assert page.locator('#results-review .result-row').first.locator('a').filter(has_text='p.65').get_attribute('href').endswith('#page=65')
   page.locator('[data-page="progress"]').click()
   assert page.locator('#missed-items .simple-question').count()>0
   assert page.locator('#bookmarked-items .simple-question').count()==1
@@ -88,6 +100,12 @@ try:
   assert single.locator('#part-cards .part-card').count()==5
   single.locator('[data-page="bank"]').click()
   assert single.locator('.bank-card').count()==74
+  assert single.locator('.bank-card').first.locator(':scope > .feedback-source a').first.get_attribute('href').endswith('#page=9')
+  single.locator('[data-start-part="A"]').click()
+  single.locator('#shuffle-questions').uncheck()
+  single.locator('#start-practice').click()
+  assert single.locator('#question-slides a').first.get_attribute('href').endswith('#page=9')
+  assert 'materials folder' in single.locator('#question-slides').inner_text()
   print('Standalone version: browser smoke tests passed.')
   browser.close()
 finally:

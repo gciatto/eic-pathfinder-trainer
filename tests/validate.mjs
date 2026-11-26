@@ -1,6 +1,10 @@
 import {readFileSync} from 'node:fs';
 import assert from 'node:assert/strict';
+import {runInNewContext} from 'node:vm';
 const bank=JSON.parse(readFileSync(new URL('../questions.json',import.meta.url),'utf8'));
+const context={window:{}};
+runInNewContext(readFileSync(new URL('../questions.js',import.meta.url),'utf8'),context);
+assert.equal(JSON.stringify(context.window.OFFICIAL_QUIZZES),JSON.stringify(bank),'generated JS matches JSON');
 const expected={A:13,B:20,C:11,D:16,E:14};
 const expectedAnswers={
 A:['E','B','E','D','A','B','D','B','E','D','B','E','B'],
@@ -22,8 +26,13 @@ for(const [part,n] of Object.entries(expected)){
   assert.equal(q.answers.join(''),expectedAnswers[part][i],`${q.id} official key`);
   assert(q.answers.every(key=>q.options[key]),`${q.id} answer not in options`);
   assert(q.sourcePage>0&&q.answerPage>0,`${q.id} missing citation page`);
+  assert(Array.isArray(q.slidePages)&&q.slidePages.length>0,`${q.id} missing relevant slides`);
+  assert.equal(new Set(q.slidePages).size,q.slidePages.length,`${q.id} duplicate slide`);
+  assert(q.slidePages.every(page=>Number.isInteger(page)&&page>0&&page<=213),`${q.id} invalid slide page`);
  });
 }
 assert.equal(bank.filter(q=>q.answers.length>1).length,1);
 assert.deepEqual(bank.find(q=>q.id==='B-16').answers,['B','D']);
+assert.deepEqual(bank.find(q=>q.id==='A-11').slidePages,[49]);
+assert.deepEqual(bank.find(q=>q.id==='E-14').slidePages,[209]);
 console.log('Validated all 74 source questions and official A–E answers.');

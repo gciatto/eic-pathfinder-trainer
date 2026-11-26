@@ -27,8 +27,9 @@ The correct answers come from `EIC_Pathfinder_Consolidated_Answers.pdf`. **B16 h
 - Select Part A, B, C, D, E, or All parts. Select practice (immediate answer feedback) or mock exam (reveal at end).
 - Use the question bank for non-scored browsing, and Progress for coverage, lifetime accuracy, bookmarks, and incorrect answers.
 - Answer choices can be selected using keys `1`–`5`. Part B Question 16 supports selecting multiple choices.
+- Use **Relevant slides** at any time while answering or browsing the question bank. Feedback (including incorrect answers) and session reviews link to the same question-specific slides in a new tab, preserving your session. Page numbers refer to physical PDF pages, since printed slide numbers restart in each part.
 - Progress is stored in the browser's `localStorage`. Export/import backup JSON to transfer devices.
-- The project archive includes the seven original PDFs in `materials/`. When running the project version, question and lecture slide links open the corresponding PDF page. The standalone version contains the full bank and keys, but not the embedded PDF files.
+- The project archive includes the seven original PDFs in `materials/`. Question and lecture slide links open the corresponding PDF page. The standalone version contains the full bank and keys; to use its slide links, keep the `materials/` folder beside `standalone.html` (the PDFs are not embedded).
 
 ## Deploying to GitHub Pages
 
@@ -44,9 +45,10 @@ No build tool, Node dependencies, server backend, or third-party JS libraries ar
 node --check app.js
 node tests/validate.mjs
 python scripts/build_standalone.py
+python tests/browser_check.py  # requires Playwright and its Chromium browser, or system chromium
 ```
 
-To regenerate the extracted question bank, run `pdftotext -layout` on each quiz PDF and the consolidated answers into `source_extract/` with matching basenames, then run `python extract_questions.py` from the project root. The included `questions.json` and `questions.js` are generated from those inputs; refer to `extract_questions.py` for explicit mappings and validation.
+To regenerate the extracted question bank, run `pdftotext -enc UTF-8 -layout` on each quiz PDF and the consolidated answers into `source_extract/` with matching basenames, then run `python extract_questions.py` from the project root. The included `questions.json` and `questions.js` are generated from those inputs; refer to `extract_questions.py` for explicit mappings and validation. Its `SLIDE_PAGES` mapping records the relevant lecture PDF pages for each question.
 
 ## Source and attribution
 
